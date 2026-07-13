@@ -1,4 +1,5 @@
 import { Heart, MapPin, Star } from "lucide-react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,7 +17,9 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantListItem 
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          {restaurant.name}
+          <Link href={`/restaurants/${restaurant.id}`} className="hover:underline">
+            {restaurant.name}
+          </Link>
         </CardTitle>
         <CardDescription className="flex items-center gap-1">
           <MapPin className="size-3.5" />
