@@ -16,6 +16,14 @@ export async function SiteHeader() {
         </Link>
         {session?.user ? (
           <div className="flex items-center gap-3 text-sm">
+            <Link href="/requests" className="text-muted-foreground hover:text-foreground">
+              식당 등록 요청
+            </Link>
+            {session.user.role === "ADMIN" && (
+              <Link href="/admin/requests" className="text-muted-foreground hover:text-foreground">
+                관리자
+              </Link>
+            )}
             <span className="text-muted-foreground">{session.user.name}님</span>
             <LogoutButton />
           </div>
