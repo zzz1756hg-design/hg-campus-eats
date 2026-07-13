@@ -1,0 +1,122 @@
+// Prisma schema — 오늘 학식 말고 뭐 먹지?
+// docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CommercialArea {
+  SANGDAE // 상대
+  YEDAE // 예대
+  GONGDAE // 공대
+  HUMUN // 후문
+  JEONGMUN // 정문
+}
+
+enum FoodCategory {
+  KOREAN // 한식
+  CHINESE // 중식
+  JAPANESE // 일식
+  WESTERN // 양식
+  FASTFOOD // 패스트푸드
+  CAFE // 카페
+  ETC // 기타
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  passwordHash       String
+  name               String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  reviews            Review[]
+  favorites          Favorite[]
+  restaurantRequests RestaurantRequest[]
+}
+
+model Restaurant {
+  id           String              @id @default(cuid())
+  name         String
+  kakaoPlaceId String?             @unique
+  address      String
+  latitude     Float
+  longitude    Float
+  phone        String?
+  area         CommercialArea
+  category     FoodCategory
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  menus        Menu[]
+  reviews      Review[]
+  favorites    Favorite[]
+  requests     RestaurantRequest[]
+
+  @@index([area])
+  @@index([category])
+  @@index([name])
+}
+
+model Menu {
+  id           String     @id @default(cuid())
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  name         String
+  price        Int
+  createdAt    DateTime   @default(now())
+
+  @@index([restaurantId])
+  @@index([name])
+}
+
+model Review {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  rating       Int // 1~5, 앱 레이어에서 검증
+  content      String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([userId, restaurantId])
+  @@index([restaurantId])
+}
+
+model Favorite {
+  id           String     @id @default(cuid())
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+
+  @@unique([userId, restaurantId])
+  @@index([userId])
+}
+
+// 사용자가 목록에 없는 식당을 추가해달라고 요청하는 기능
+model RestaurantRequest {
+  id           String         @id @default(cuid())
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name         String
+  address      String?
+  reason       String?
+  status       RequestStatus  @default(PENDING)
+  restaurantId String?
+  restaurant   Restaurant?    @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+  createdAt    DateTime       @default(now())
+}
