@@ -37,7 +37,11 @@ export default async function AdminRequestsPage() {
               </div>
               {request.address && <p className="text-sm text-muted-foreground">주소: {request.address}</p>}
               {request.reason && <p className="text-sm text-muted-foreground">사유: {request.reason}</p>}
-              <AdminRequestApproveForm requestId={request.id} />
+              <AdminRequestApproveForm
+                requestId={request.id}
+                defaultName={request.name}
+                defaultAddress={request.address ?? ""}
+              />
             </div>
           ))
         )}
