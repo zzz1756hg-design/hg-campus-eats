@@ -46,3 +46,20 @@ export async function submitReview(
 
   revalidatePath(`/restaurants/${restaurantId}`);
 }
+
+export async function deleteReview(reviewId: string) {
+  const session = await auth();
+  if (!session?.user) {
+    throw new Error("로그인이 필요해요.");
+  }
+
+  const review = await prisma.review.findUnique({ where: { id: reviewId } });
+  if (!review || review.userId !== session.user.id) {
+    throw new Error("삭제할 수 없는 리뷰예요.");
+  }
+
+  await prisma.review.delete({ where: { id: reviewId } });
+
+  revalidatePath("/mypage");
+  revalidatePath(`/restaurants/${review.restaurantId}`);
+}

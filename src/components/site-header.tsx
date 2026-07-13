@@ -16,8 +16,8 @@ export async function SiteHeader() {
         </Link>
         {session?.user ? (
           <div className="flex items-center gap-3 text-sm">
-            <Link href="/requests" className="text-muted-foreground hover:text-foreground">
-              식당 등록 요청
+            <Link href="/mypage" className="text-muted-foreground hover:text-foreground">
+              마이페이지
             </Link>
             {session.user.role === "ADMIN" && (
               <Link href="/admin" className="text-muted-foreground hover:text-foreground">
