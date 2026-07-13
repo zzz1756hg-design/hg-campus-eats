@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 import * as z from "zod";
 
-import { auth } from "@/auth";
 import { CommercialArea, FoodCategory } from "@/generated/prisma/enums";
+import { requireAdminSession } from "@/lib/actions/admin-guard";
 import { prisma } from "@/lib/prisma";
 
 const ApproveSchema = z.object({
@@ -17,20 +17,12 @@ const ApproveSchema = z.object({
 
 export type AdminRequestState = { error?: string } | undefined;
 
-async function requireAdmin() {
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    throw new Error("관리자만 접근할 수 있어요.");
-  }
-  return session;
-}
-
 export async function approveRequest(
   requestId: string,
   _state: AdminRequestState,
   formData: FormData
 ): Promise<AdminRequestState> {
-  await requireAdmin();
+  await requireAdminSession();
 
   const parsed = ApproveSchema.safeParse({
     area: formData.get("area"),
@@ -73,7 +65,7 @@ export async function approveRequest(
 }
 
 export async function rejectRequest(requestId: string) {
-  await requireAdmin();
+  await requireAdminSession();
 
   await prisma.restaurantRequest.updateMany({
     where: { id: requestId, status: "PENDING" },

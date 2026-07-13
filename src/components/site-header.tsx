@@ -20,7 +20,7 @@ export async function SiteHeader() {
               식당 등록 요청
             </Link>
             {session.user.role === "ADMIN" && (
-              <Link href="/admin/requests" className="text-muted-foreground hover:text-foreground">
+              <Link href="/admin" className="text-muted-foreground hover:text-foreground">
                 관리자
               </Link>
             )}
