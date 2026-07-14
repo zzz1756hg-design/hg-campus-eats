@@ -71,6 +71,9 @@ model Restaurant {
   area         CommercialArea
   category     FoodCategory
   isPartnered  Boolean                 @default(false) // 학교 제휴 식당 여부
+  partnershipStartDate DateTime?       // 제휴 이벤트 시작일
+  partnershipEndDate   DateTime?       // 제휴 이벤트 종료일
+  partnershipBenefit   String?         // 제휴 혜택 내용
   createdAt    DateTime                @default(now())
   updatedAt    DateTime                @updatedAt
   menus        Menu[]
