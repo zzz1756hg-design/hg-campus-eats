@@ -62,6 +62,7 @@ model Restaurant {
   phone        String?
   area         CommercialArea
   category     FoodCategory
+  isPartnered  Boolean             @default(false) // 학교 제휴 식당 여부
   createdAt    DateTime            @default(now())
   updatedAt    DateTime            @updatedAt
   menus        Menu[]
@@ -72,6 +73,7 @@ model Restaurant {
   @@index([area])
   @@index([category])
   @@index([name])
+  @@index([isPartnered])
 }
 
 model Menu {

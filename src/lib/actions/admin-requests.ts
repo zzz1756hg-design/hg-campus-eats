@@ -16,6 +16,7 @@ const ApproveSchema = z.object({
   longitude: z.coerce.number({ error: "경도를 숫자로 입력해주세요." }),
   phone: z.string().trim(),
   kakaoPlaceId: z.string().trim(),
+  isPartnered: z.coerce.boolean(),
 });
 
 export type AdminRequestState = { error?: string } | undefined;
@@ -36,6 +37,7 @@ export async function approveRequest(
     longitude: formData.get("longitude"),
     phone: formData.get("phone"),
     kakaoPlaceId: formData.get("kakaoPlaceId"),
+    isPartnered: formData.get("isPartnered"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
@@ -46,7 +48,8 @@ export async function approveRequest(
     return { error: "이미 처리된 요청이에요." };
   }
 
-  const { name, address, area, category, latitude, longitude, phone, kakaoPlaceId } = parsed.data;
+  const { name, address, area, category, latitude, longitude, phone, kakaoPlaceId, isPartnered } =
+    parsed.data;
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -60,6 +63,7 @@ export async function approveRequest(
           area,
           category,
           kakaoPlaceId: kakaoPlaceId || null,
+          isPartnered,
         },
       });
       await tx.restaurantRequest.update({

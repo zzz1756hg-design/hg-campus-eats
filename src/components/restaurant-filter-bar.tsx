@@ -12,6 +12,7 @@ type Props = {
   category?: FoodCategory;
   q?: string;
   sort?: RestaurantSort;
+  partnered?: boolean;
 };
 
 const SORT_OPTIONS: { value: RestaurantSort; label: string }[] = [
@@ -27,6 +28,7 @@ function filterHref(current: Props, changes: Partial<Props>) {
   if (next.category) params.set("category", next.category);
   if (next.q) params.set("q", next.q);
   if (next.sort && next.sort !== "name") params.set("sort", next.sort);
+  if (next.partnered) params.set("partnered", "1");
   const query = params.toString();
   return query ? `/?${query}` : "/";
 }
@@ -53,8 +55,8 @@ function FilterLink({
   );
 }
 
-export function RestaurantFilterBar({ area, category, q, sort = "name" }: Props) {
-  const current = { area, category, q, sort };
+export function RestaurantFilterBar({ area, category, q, sort = "name", partnered }: Props) {
+  const current = { area, category, q, sort, partnered };
 
   return (
     <div className="flex flex-col gap-3">
@@ -62,6 +64,7 @@ export function RestaurantFilterBar({ area, category, q, sort = "name" }: Props)
         {area && <input type="hidden" name="area" value={area} />}
         {category && <input type="hidden" name="category" value={category} />}
         {sort !== "name" && <input type="hidden" name="sort" value={sort} />}
+        {partnered && <input type="hidden" name="partnered" value="1" />}
         <Input
           type="search"
           name="q"
@@ -99,6 +102,12 @@ export function RestaurantFilterBar({ area, category, q, sort = "name" }: Props)
             {CATEGORY_LABELS[value]}
           </FilterLink>
         ))}
+        <FilterLink
+          href={filterHref(current, { partnered: partnered ? undefined : true })}
+          active={!!partnered}
+        >
+          제휴 식당만
+        </FilterLink>
       </div>
 
       <div className="flex flex-wrap items-center gap-1.5">

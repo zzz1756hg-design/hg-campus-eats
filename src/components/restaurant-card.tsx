@@ -30,6 +30,7 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantListItem 
         <div className="flex flex-wrap gap-1.5">
           <Badge variant="secondary">{AREA_LABELS[restaurant.area]}</Badge>
           <Badge variant="outline">{CATEGORY_LABELS[restaurant.category]}</Badge>
+          {restaurant.isPartnered && <Badge>제휴</Badge>}
         </div>
 
         {restaurant.menus.length > 0 && (

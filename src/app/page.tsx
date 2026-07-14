@@ -31,8 +31,9 @@ export default async function Home(props: PageProps<"/">) {
   const category = parseCategory(searchParams.category);
   const q = firstValue(searchParams.q)?.trim() || undefined;
   const sort = parseSort(searchParams.sort);
+  const partnered = firstValue(searchParams.partnered) === "1";
 
-  const restaurants = await getRestaurants({ area, category, q, sort });
+  const restaurants = await getRestaurants({ area, category, q, sort, partnered });
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8">
@@ -43,7 +44,7 @@ export default async function Home(props: PageProps<"/">) {
         </p>
       </div>
 
-      <RestaurantFilterBar area={area} category={category} q={q} sort={sort} />
+      <RestaurantFilterBar area={area} category={category} q={q} sort={sort} partnered={partnered} />
 
       <RestaurantsMap restaurants={restaurants} area={area} />
 

@@ -185,6 +185,10 @@ export function AdminRequestApproveForm({
             className="h-8"
           />
         </div>
+        <div className="col-span-2 flex items-center gap-2">
+          <input type="checkbox" id={`partnered-${requestId}`} name="isPartnered" className="size-4" />
+          <Label htmlFor={`partnered-${requestId}`}>학교 제휴 식당이에요</Label>
+        </div>
       </div>
       {state?.error && <p className="text-destructive">{state.error}</p>}
       <Button type="submit" size="sm" disabled={pending} className="self-start">

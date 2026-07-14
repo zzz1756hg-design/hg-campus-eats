@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AdminMenuManager } from "@/components/admin-menu-manager";
+import { AdminPartnershipToggle } from "@/components/admin-partnership-toggle";
 import { FavoriteButton } from "@/components/favorite-button";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { ReviewForm } from "@/components/review-form";
@@ -36,6 +37,7 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
         <div className="flex flex-wrap gap-1.5">
           <Badge variant="secondary">{AREA_LABELS[restaurant.area]}</Badge>
           <Badge variant="outline">{CATEGORY_LABELS[restaurant.category]}</Badge>
+          {restaurant.isPartnered && <Badge>제휴</Badge>}
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">{restaurant.name}</h1>
         <div className="flex flex-col gap-1 text-sm text-muted-foreground">
@@ -60,13 +62,16 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
             찜 {restaurant._count.favorites}
           </span>
         </div>
-        <div className="pt-2">
+        <div className="flex items-center gap-2 pt-2">
           {userId ? (
             <FavoriteButton restaurantId={restaurant.id} favorited={favorited} />
           ) : (
             <Link href="/login" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
               로그인하고 찜하기
             </Link>
+          )}
+          {session?.user?.role === "ADMIN" && (
+            <AdminPartnershipToggle restaurantId={restaurant.id} isPartnered={restaurant.isPartnered} />
           )}
         </div>
       </div>

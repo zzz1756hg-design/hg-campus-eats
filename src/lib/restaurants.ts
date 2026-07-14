@@ -11,13 +11,21 @@ export type RestaurantListFilters = {
   category?: FoodCategory;
   q?: string;
   sort?: RestaurantSort;
+  partnered?: boolean;
 };
 
-export async function getRestaurants({ area, category, q, sort = "name" }: RestaurantListFilters) {
+export async function getRestaurants({
+  area,
+  category,
+  q,
+  sort = "name",
+  partnered,
+}: RestaurantListFilters) {
   const restaurants = await prisma.restaurant.findMany({
     where: {
       ...(area ? { area } : {}),
       ...(category ? { category } : {}),
+      ...(partnered ? { isPartnered: true } : {}),
       ...(q
         ? {
             OR: [
