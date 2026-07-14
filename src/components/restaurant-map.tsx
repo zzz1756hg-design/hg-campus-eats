@@ -3,24 +3,7 @@
 import Script from "next/script";
 import { useRef } from "react";
 
-type KakaoLatLng = { lat: number; lng: number };
-type KakaoMap = { setCenter: (latLng: KakaoLatLng) => void };
-type KakaoMarker = { setMap: (map: KakaoMap | null) => void };
-type KakaoInfoWindow = { open: (map: KakaoMap, marker: KakaoMarker) => void };
-
-type KakaoMapsSdk = {
-  load: (callback: () => void) => void;
-  LatLng: new (lat: number, lng: number) => KakaoLatLng;
-  Map: new (container: HTMLElement, options: { center: KakaoLatLng; level: number }) => KakaoMap;
-  Marker: new (options: { position: KakaoLatLng }) => KakaoMarker;
-  InfoWindow: new (options: { content: string }) => KakaoInfoWindow;
-};
-
-declare global {
-  interface Window {
-    kakao?: { maps: KakaoMapsSdk };
-  }
-}
+import { KAKAO_MAPS_SDK_SRC } from "@/lib/kakao-map-sdk";
 
 export function RestaurantMap({
   name,
@@ -53,11 +36,7 @@ export function RestaurantMap({
 
   return (
     <>
-      <Script
-        src={`https://dapi.kakao.com/v2/maps/sdk.js?appkey=${process.env.NEXT_PUBLIC_KAKAO_JS_KEY}&autoload=false`}
-        strategy="afterInteractive"
-        onReady={initMap}
-      />
+      <Script src={KAKAO_MAPS_SDK_SRC} strategy="afterInteractive" onReady={initMap} />
       <div ref={containerRef} className="h-56 w-full overflow-hidden rounded-lg border" />
     </>
   );

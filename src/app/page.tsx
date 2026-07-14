@@ -1,6 +1,7 @@
 import { CommercialArea, FoodCategory } from "@/generated/prisma/enums";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { RestaurantFilterBar } from "@/components/restaurant-filter-bar";
+import { RestaurantsMap } from "@/components/restaurants-map";
 import { getRestaurants } from "@/lib/restaurants";
 
 function firstValue(value: string | string[] | undefined) {
@@ -35,6 +36,8 @@ export default async function Home(props: PageProps<"/">) {
       </div>
 
       <RestaurantFilterBar area={area} category={category} q={q} />
+
+      <RestaurantsMap restaurants={restaurants} />
 
       {restaurants.length === 0 ? (
         <p className="py-12 text-center text-sm text-muted-foreground">
