@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { AdminMenuManager } from "@/components/admin-menu-manager";
 import { AdminPartnershipToggle } from "@/components/admin-partnership-toggle";
+import { AdminRestaurantInfoForm } from "@/components/admin-restaurant-info-form";
 import { FavoriteButton } from "@/components/favorite-button";
+import { RestaurantEditRequestForm } from "@/components/restaurant-edit-request-form";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { ReviewForm } from "@/components/review-form";
 import { AREA_LABELS, CATEGORY_LABELS } from "@/lib/restaurant-labels";
@@ -74,6 +76,16 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
             <AdminPartnershipToggle restaurantId={restaurant.id} isPartnered={restaurant.isPartnered} />
           )}
         </div>
+        {session?.user?.role === "ADMIN" && (
+          <AdminRestaurantInfoForm
+            restaurantId={restaurant.id}
+            name={restaurant.name}
+            address={restaurant.address}
+            phone={restaurant.phone}
+            area={restaurant.area}
+            category={restaurant.category}
+          />
+        )}
       </div>
 
       <RestaurantMap name={restaurant.name} latitude={restaurant.latitude} longitude={restaurant.longitude} />
@@ -98,6 +110,19 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
           <AdminMenuManager restaurantId={restaurant.id} menus={restaurant.menus} />
         )}
       </div>
+
+      <Separator />
+
+      {userId ? (
+        <RestaurantEditRequestForm restaurantId={restaurant.id} menus={restaurant.menus} />
+      ) : (
+        <p className="text-sm text-muted-foreground">
+          <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
+            로그인
+          </Link>
+          하고 식당 정보 수정을 요청해보세요.
+        </p>
+      )}
 
       <Separator />
 

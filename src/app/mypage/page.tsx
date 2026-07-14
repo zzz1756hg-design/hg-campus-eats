@@ -32,9 +32,21 @@ export default async function MyPage() {
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold tracking-tight">내 식당 등록 요청</h2>
+          <h2 className="text-lg font-semibold tracking-tight">내 식당 제보</h2>
           <Link href="/requests" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
-            요청 내역 보기
+            제보 내역 보기
+          </Link>
+        </div>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold tracking-tight">내 수정요청</h2>
+          <Link href="/edit-requests" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+            수정요청 내역 보기
+          </Link>
+        </div>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold tracking-tight">내 문의</h2>
+          <Link href="/inquiries" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+            문의 내역 보기
           </Link>
         </div>
       </div>

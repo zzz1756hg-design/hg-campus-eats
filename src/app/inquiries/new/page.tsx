@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
-import { RestaurantRequestForm } from "@/components/restaurant-request-form";
+import { InquiryForm } from "@/components/inquiry-form";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default async function NewRestaurantRequestPage() {
+export default async function NewInquiryPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
@@ -12,11 +12,11 @@ export default async function NewRestaurantRequestPage() {
     <main className="mx-auto flex w-full max-w-lg flex-1 flex-col px-4 py-8">
       <Card>
         <CardHeader>
-          <CardTitle>식당 제보</CardTitle>
-          <CardDescription>목록에 없는 식당을 추가해달라고 제보해보세요.</CardDescription>
+          <CardTitle>1:1 문의</CardTitle>
+          <CardDescription>궁금한 점이나 불편한 점을 남겨주세요.</CardDescription>
         </CardHeader>
         <CardContent>
-          <RestaurantRequestForm />
+          <InquiryForm />
         </CardContent>
       </Card>
     </main>

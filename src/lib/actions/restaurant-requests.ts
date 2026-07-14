@@ -21,19 +21,23 @@ export async function submitRestaurantRequest(
     name: formData.get("name"),
     address: formData.get("address"),
     reason: formData.get("reason"),
+    menuName: formData.get("menuName"),
+    menuPrice: formData.get("menuPrice"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
   }
 
-  const { name, address, reason } = parsed.data;
+  const { name, address, reason, menuName, menuPrice } = parsed.data;
 
   await prisma.restaurantRequest.create({
     data: {
       userId: session.user.id,
       name,
-      address: address || null,
+      address,
       reason: reason || null,
+      menuName,
+      menuPrice,
     },
   });
 

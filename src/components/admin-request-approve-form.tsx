@@ -16,10 +16,14 @@ export function AdminRequestApproveForm({
   requestId,
   defaultName,
   defaultAddress,
+  defaultMenuName,
+  defaultMenuPrice,
 }: {
   requestId: string;
   defaultName: string;
   defaultAddress: string;
+  defaultMenuName: string;
+  defaultMenuPrice: string;
 }) {
   const action = approveRequest.bind(null, requestId);
   const [state, formAction, pending] = useActionState(action, undefined);
@@ -30,6 +34,8 @@ export function AdminRequestApproveForm({
   const [longitude, setLongitude] = useState("");
   const [phone, setPhone] = useState("");
   const [kakaoPlaceId, setKakaoPlaceId] = useState("");
+  const [menuName, setMenuName] = useState(defaultMenuName);
+  const [menuPrice, setMenuPrice] = useState(defaultMenuPrice);
 
   const [query, setQuery] = useState(defaultName);
   const [results, setResults] = useState<KakaoPlace[]>([]);
@@ -182,6 +188,28 @@ export function AdminRequestApproveForm({
             name="phone"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
+            className="h-8"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor={`menu-name-${requestId}`}>대표메뉴 이름</Label>
+          <Input
+            id={`menu-name-${requestId}`}
+            name="menuName"
+            value={menuName}
+            onChange={(e) => setMenuName(e.target.value)}
+            className="h-8"
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor={`menu-price-${requestId}`}>대표메뉴 가격</Label>
+          <Input
+            id={`menu-price-${requestId}`}
+            name="menuPrice"
+            type="number"
+            min={0}
+            value={menuPrice}
+            onChange={(e) => setMenuPrice(e.target.value)}
             className="h-8"
           />
         </div>

@@ -39,36 +39,45 @@ enum Role {
   ADMIN
 }
 
+enum EditRequestType {
+  INFO_CORRECTION // 식당 정보 수정요청
+  MENU_ADD // 메뉴 추가요청
+  MENU_PRICE_FIX // 메뉴 가격 수정요청
+}
+
 model User {
-  id                 String              @id @default(cuid())
-  email              String              @unique
-  passwordHash       String
-  name               String
-  role               Role                @default(USER)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  reviews            Review[]
-  favorites          Favorite[]
-  restaurantRequests RestaurantRequest[]
+  id                     String                  @id @default(cuid())
+  email                  String                  @unique
+  passwordHash           String
+  name                   String
+  role                   Role                    @default(USER)
+  createdAt              DateTime                @default(now())
+  updatedAt              DateTime                @updatedAt
+  reviews                Review[]
+  favorites              Favorite[]
+  restaurantRequests     RestaurantRequest[]
+  restaurantEditRequests RestaurantEditRequest[]
+  inquiries              Inquiry[]
 }
 
 model Restaurant {
-  id           String              @id @default(cuid())
+  id           String                  @id @default(cuid())
   name         String
-  kakaoPlaceId String?             @unique
+  kakaoPlaceId String?                 @unique
   address      String
   latitude     Float
   longitude    Float
   phone        String?
   area         CommercialArea
   category     FoodCategory
-  isPartnered  Boolean             @default(false) // 학교 제휴 식당 여부
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+  isPartnered  Boolean                 @default(false) // 학교 제휴 식당 여부
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
   menus        Menu[]
   reviews      Review[]
   favorites    Favorite[]
   requests     RestaurantRequest[]
+  editRequests RestaurantEditRequest[]
 
   @@index([area])
   @@index([category])
@@ -77,12 +86,13 @@ model Restaurant {
 }
 
 model Menu {
-  id           String     @id @default(cuid())
+  id           String                  @id @default(cuid())
   restaurantId String
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurant   Restaurant              @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
   name         String
   price        Int
-  createdAt    DateTime   @default(now())
+  createdAt    DateTime                @default(now())
+  editRequests RestaurantEditRequest[]
 
   @@index([restaurantId])
   @@index([name])
@@ -115,16 +125,54 @@ model Favorite {
   @@index([userId])
 }
 
-// 사용자가 목록에 없는 식당을 추가해달라고 요청하는 기능
+// 사용자가 목록에 없는 식당을 추가해달라고 제보하는 기능
 model RestaurantRequest {
-  id           String         @id @default(cuid())
-  userId       String
-  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name         String
-  address      String?
-  reason       String?
-  status       RequestStatus  @default(PENDING)
-  restaurantId String?
-  restaurant   Restaurant?    @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
-  createdAt    DateTime       @default(now())
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  address         String?
+  reason          String?
+  menuName        String? // 대표메뉴 이름
+  menuPrice       Int? // 대표메뉴 가격
+  status          RequestStatus @default(PENDING)
+  rejectionReason String?
+  restaurantId    String?
+  restaurant      Restaurant?   @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+  createdAt       DateTime      @default(now())
+}
+
+// 이미 등록된 식당의 정보/메뉴가 틀렸을 때 사용자가 수정을 요청하는 기능
+model RestaurantEditRequest {
+  id              String          @id @default(cuid())
+  userId          String
+  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  restaurantId    String
+  restaurant      Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  type            EditRequestType
+  description     String? // 정보 수정요청의 내용(무엇이 왜 틀렸는지)
+  menuId          String? // 메뉴 가격 수정요청의 대상 메뉴
+  menu            Menu?           @relation(fields: [menuId], references: [id], onDelete: SetNull)
+  menuName        String? // 메뉴 추가요청의 메뉴 이름 / 가격 수정요청 참고용 메뉴 이름
+  menuPrice       Int? // 메뉴 추가요청의 가격 / 가격 수정요청의 제안 가격
+  status          RequestStatus   @default(PENDING)
+  rejectionReason String?
+  createdAt       DateTime        @default(now())
+
+  @@index([restaurantId])
+  @@index([status])
+}
+
+// 1:1 문의
+model Inquiry {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title      String
+  content    String
+  answer     String?
+  answeredAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
 }

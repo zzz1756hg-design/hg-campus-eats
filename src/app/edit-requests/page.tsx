@@ -3,46 +3,45 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
-import { buttonVariants } from "@/components/ui/button";
+import { EDIT_REQUEST_TYPE_LABELS } from "@/lib/edit-request-labels";
 import { REQUEST_STATUS_BADGE_VARIANT, REQUEST_STATUS_LABELS } from "@/lib/request-labels";
-import { getMyRequests } from "@/lib/restaurant-requests";
-import { cn } from "@/lib/utils";
+import { getMyEditRequests } from "@/lib/restaurant-edit-requests";
 
-export default async function MyRestaurantRequestsPage() {
+export default async function MyEditRequestsPage() {
   const session = await auth();
   if (!session?.user) redirect("/login");
 
-  const requests = await getMyRequests(session.user.id);
+  const editRequests = await getMyEditRequests(session.user.id);
 
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-6 px-4 py-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold tracking-tight">내 식당 제보</h1>
-        <Link href="/requests/new" className={cn(buttonVariants({ size: "sm" }))}>
-          새 제보
-        </Link>
-      </div>
+      <h1 className="text-xl font-semibold tracking-tight">내 수정요청</h1>
 
-      {requests.length === 0 ? (
-        <p className="text-sm text-muted-foreground">아직 제보한 식당이 없어요.</p>
+      {editRequests.length === 0 ? (
+        <p className="text-sm text-muted-foreground">아직 제출한 수정요청이 없어요.</p>
       ) : (
         <ul className="flex flex-col gap-3">
-          {requests.map((request) => (
+          {editRequests.map((request) => (
             <li key={request.id} className="flex flex-col gap-1 rounded-lg border p-3 text-sm">
               <div className="flex items-center justify-between gap-2">
-                <span className="font-medium">{request.name}</span>
+                <Link
+                  href={`/restaurants/${request.restaurant.id}`}
+                  className="font-medium hover:underline"
+                >
+                  {request.restaurant.name}
+                </Link>
                 <Badge variant={REQUEST_STATUS_BADGE_VARIANT[request.status]}>
                   {REQUEST_STATUS_LABELS[request.status]}
                 </Badge>
               </div>
-              {request.address && <p className="text-muted-foreground">{request.address}</p>}
+              <p className="text-muted-foreground">{EDIT_REQUEST_TYPE_LABELS[request.type]}</p>
+              {request.description && <p className="text-muted-foreground">{request.description}</p>}
               {request.menuName && (
                 <p className="text-muted-foreground">
-                  대표메뉴: {request.menuName}
+                  {request.menuName}
                   {request.menuPrice !== null && ` (${request.menuPrice.toLocaleString()}원)`}
                 </p>
               )}
-              {request.reason && <p className="text-muted-foreground">{request.reason}</p>}
               {request.status === "REJECTED" && request.rejectionReason && (
                 <p className="text-destructive">거절 사유: {request.rejectionReason}</p>
               )}

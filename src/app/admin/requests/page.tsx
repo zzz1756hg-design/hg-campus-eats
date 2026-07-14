@@ -1,9 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { auth } from "@/auth";
+import { AdminRejectForm } from "@/components/admin-reject-form";
 import { AdminRequestApproveForm } from "@/components/admin-request-approve-form";
-import { AdminRequestRejectButton } from "@/components/admin-request-reject-button";
 import { Badge } from "@/components/ui/badge";
+import { rejectRequest } from "@/lib/actions/admin-requests";
 import { REQUEST_STATUS_BADGE_VARIANT, REQUEST_STATUS_LABELS } from "@/lib/request-labels";
 import { getPendingRequests, getProcessedRequests } from "@/lib/restaurant-requests";
 
@@ -33,14 +34,22 @@ export default async function AdminRequestsPage() {
                     {request.user.name} ({request.user.email})
                   </p>
                 </div>
-                <AdminRequestRejectButton requestId={request.id} />
+                <AdminRejectForm action={rejectRequest.bind(null, request.id)} />
               </div>
               {request.address && <p className="text-sm text-muted-foreground">주소: {request.address}</p>}
+              {request.menuName && (
+                <p className="text-sm text-muted-foreground">
+                  대표메뉴: {request.menuName}
+                  {request.menuPrice !== null && ` (${request.menuPrice.toLocaleString()}원)`}
+                </p>
+              )}
               {request.reason && <p className="text-sm text-muted-foreground">사유: {request.reason}</p>}
               <AdminRequestApproveForm
                 requestId={request.id}
                 defaultName={request.name}
                 defaultAddress={request.address ?? ""}
+                defaultMenuName={request.menuName ?? ""}
+                defaultMenuPrice={request.menuPrice !== null ? String(request.menuPrice) : ""}
               />
             </div>
           ))
@@ -52,13 +61,18 @@ export default async function AdminRequestsPage() {
           <h2 className="text-lg font-semibold tracking-tight">처리 내역</h2>
           <ul className="flex flex-col gap-2 text-sm">
             {processed.map((request) => (
-              <li key={request.id} className="flex items-center justify-between gap-2 rounded-lg border p-3">
-                <span>
-                  {request.name} ({request.user.name})
-                </span>
-                <Badge variant={REQUEST_STATUS_BADGE_VARIANT[request.status]}>
-                  {REQUEST_STATUS_LABELS[request.status]}
-                </Badge>
+              <li key={request.id} className="flex flex-col gap-1 rounded-lg border p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <span>
+                    {request.name} ({request.user.name})
+                  </span>
+                  <Badge variant={REQUEST_STATUS_BADGE_VARIANT[request.status]}>
+                    {REQUEST_STATUS_LABELS[request.status]}
+                  </Badge>
+                </div>
+                {request.status === "REJECTED" && request.rejectionReason && (
+                  <p className="text-xs text-muted-foreground">거절 사유: {request.rejectionReason}</p>
+                )}
               </li>
             ))}
           </ul>

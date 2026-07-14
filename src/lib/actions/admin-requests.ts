@@ -17,6 +17,8 @@ const ApproveSchema = z.object({
   phone: z.string().trim(),
   kakaoPlaceId: z.string().trim(),
   isPartnered: z.coerce.boolean(),
+  menuName: z.string().trim().max(50),
+  menuPrice: z.string().trim(),
 });
 
 export type AdminRequestState = { error?: string } | undefined;
@@ -38,6 +40,8 @@ export async function approveRequest(
     phone: formData.get("phone"),
     kakaoPlaceId: formData.get("kakaoPlaceId"),
     isPartnered: formData.get("isPartnered"),
+    menuName: formData.get("menuName"),
+    menuPrice: formData.get("menuPrice"),
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
@@ -48,8 +52,22 @@ export async function approveRequest(
     return { error: "이미 처리된 요청이에요." };
   }
 
-  const { name, address, area, category, latitude, longitude, phone, kakaoPlaceId, isPartnered } =
-    parsed.data;
+  const {
+    name,
+    address,
+    area,
+    category,
+    latitude,
+    longitude,
+    phone,
+    kakaoPlaceId,
+    isPartnered,
+    menuName,
+    menuPrice,
+  } = parsed.data;
+
+  const parsedMenuPrice = Number(menuPrice);
+  const hasMenu = menuName.trim().length > 0 && Number.isFinite(parsedMenuPrice) && parsedMenuPrice >= 0;
 
   try {
     await prisma.$transaction(async (tx) => {
@@ -64,6 +82,9 @@ export async function approveRequest(
           category,
           kakaoPlaceId: kakaoPlaceId || null,
           isPartnered,
+          ...(hasMenu
+            ? { menus: { create: [{ name: menuName.trim(), price: parsedMenuPrice }] } }
+            : {}),
         },
       });
       await tx.restaurantRequest.update({
@@ -79,12 +100,27 @@ export async function approveRequest(
   revalidatePath("/");
 }
 
-export async function rejectRequest(requestId: string) {
+const RejectSchema = z.object({
+  rejectionReason: z.string().trim().min(1, { error: "거절 사유를 입력해주세요." }).max(300),
+});
+
+export type RejectRequestState = { error?: string } | undefined;
+
+export async function rejectRequest(
+  requestId: string,
+  _state: RejectRequestState,
+  formData: FormData
+): Promise<RejectRequestState> {
   await requireAdminSession();
+
+  const parsed = RejectSchema.safeParse({ rejectionReason: formData.get("rejectionReason") });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "입력값을 확인해주세요." };
+  }
 
   await prisma.restaurantRequest.updateMany({
     where: { id: requestId, status: "PENDING" },
-    data: { status: "REJECTED" },
+    data: { status: "REJECTED", rejectionReason: parsed.data.rejectionReason },
   });
 
   revalidatePath("/admin/requests");
