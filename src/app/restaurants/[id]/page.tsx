@@ -5,6 +5,7 @@ import { Heart, MapPin, Phone, Star } from "lucide-react";
 import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { AdminMenuManager } from "@/components/admin-menu-manager";
 import { FavoriteButton } from "@/components/favorite-button";
 import { RestaurantMap } from "@/components/restaurant-map";
 import { ReviewForm } from "@/components/review-form";
@@ -87,6 +88,9 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
               </li>
             ))}
           </ul>
+        )}
+        {session?.user?.role === "ADMIN" && (
+          <AdminMenuManager restaurantId={restaurant.id} menus={restaurant.menus} />
         )}
       </div>
 
