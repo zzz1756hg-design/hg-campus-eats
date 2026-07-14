@@ -37,7 +37,7 @@ export default async function Home(props: PageProps<"/">) {
 
       <RestaurantFilterBar area={area} category={category} q={q} />
 
-      <RestaurantsMap restaurants={restaurants} />
+      <RestaurantsMap restaurants={restaurants} area={area} />
 
       {restaurants.length === 0 ? (
         <p className="py-12 text-center text-sm text-muted-foreground">
