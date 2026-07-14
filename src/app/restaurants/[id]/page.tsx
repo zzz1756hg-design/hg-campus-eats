@@ -4,6 +4,7 @@ import { Heart, MapPin, Phone, Star } from "lucide-react";
 
 import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { AdminMenuManager } from "@/components/admin-menu-manager";
 import { AdminPartnershipToggle } from "@/components/admin-partnership-toggle";
@@ -16,6 +17,10 @@ import { AREA_LABELS, CATEGORY_LABELS } from "@/lib/restaurant-labels";
 import { getRestaurantById, isFavoritedByUser } from "@/lib/restaurants";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+function formatDate(date: Date) {
+  return date.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+}
 
 export default async function RestaurantDetailPage(props: PageProps<"/restaurants/[id]">) {
   const { id } = await props.params;
@@ -87,6 +92,24 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
           />
         )}
       </div>
+
+      {restaurant.isPartnered && restaurant.partnershipBenefit && (
+        <Card>
+          <CardContent className="flex flex-col gap-2">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="font-semibold tracking-tight">제휴 혜택</h2>
+              {restaurant.partnershipStartDate && restaurant.partnershipEndDate && (
+                <span className="text-xs text-muted-foreground">
+                  {formatDate(restaurant.partnershipStartDate)} ~ {formatDate(restaurant.partnershipEndDate)}
+                </span>
+              )}
+            </div>
+            <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+              {restaurant.partnershipBenefit}
+            </p>
+          </CardContent>
+        </Card>
+      )}
 
       <RestaurantMap name={restaurant.name} latitude={restaurant.latitude} longitude={restaurant.longitude} />
 
