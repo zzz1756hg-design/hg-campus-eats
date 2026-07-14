@@ -12,7 +12,14 @@ export function getRestaurants({ area, category, q }: RestaurantListFilters) {
     where: {
       ...(area ? { area } : {}),
       ...(category ? { category } : {}),
-      ...(q ? { name: { contains: q, mode: "insensitive" } } : {}),
+      ...(q
+        ? {
+            OR: [
+              { name: { contains: q, mode: "insensitive" } },
+              { menus: { some: { name: { contains: q, mode: "insensitive" } } } },
+            ],
+          }
+        : {}),
     },
     include: {
       menus: { orderBy: { price: "asc" }, take: 3 },
