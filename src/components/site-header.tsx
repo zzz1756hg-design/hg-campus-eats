@@ -28,13 +28,18 @@ export async function SiteHeader() {
             <LogoutButton />
           </div>
         ) : (
-          <div className="flex items-center gap-1.5">
-            <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
-              로그인
+          <div className="flex items-center gap-3 text-sm">
+            <Link href="/mypage" className="text-muted-foreground hover:text-foreground">
+              마이페이지
             </Link>
-            <Link href="/signup" className={cn(buttonVariants({ size: "sm" }))}>
-              회원가입
-            </Link>
+            <div className="flex items-center gap-1.5">
+              <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}>
+                로그인
+              </Link>
+              <Link href="/signup" className={cn(buttonVariants({ size: "sm" }))}>
+                회원가입
+              </Link>
+            </div>
           </div>
         )}
       </div>
