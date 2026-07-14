@@ -2,7 +2,9 @@ import { CommercialArea, FoodCategory } from "@/generated/prisma/enums";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { RestaurantFilterBar } from "@/components/restaurant-filter-bar";
 import { RestaurantsMap } from "@/components/restaurants-map";
-import { getRestaurants } from "@/lib/restaurants";
+import { getRestaurants, type RestaurantSort } from "@/lib/restaurants";
+
+const SORT_VALUES: RestaurantSort[] = ["name", "rating", "distance"];
 
 function firstValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -18,13 +20,19 @@ function parseCategory(value: string | string[] | undefined): FoodCategory | und
   return raw && raw in FoodCategory ? (raw as FoodCategory) : undefined;
 }
 
+function parseSort(value: string | string[] | undefined): RestaurantSort {
+  const raw = firstValue(value);
+  return (SORT_VALUES as string[]).includes(raw ?? "") ? (raw as RestaurantSort) : "name";
+}
+
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
   const area = parseArea(searchParams.area);
   const category = parseCategory(searchParams.category);
   const q = firstValue(searchParams.q)?.trim() || undefined;
+  const sort = parseSort(searchParams.sort);
 
-  const restaurants = await getRestaurants({ area, category, q });
+  const restaurants = await getRestaurants({ area, category, q, sort });
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-8">
@@ -35,7 +43,7 @@ export default async function Home(props: PageProps<"/">) {
         </p>
       </div>
 
-      <RestaurantFilterBar area={area} category={category} q={q} />
+      <RestaurantFilterBar area={area} category={category} q={q} sort={sort} />
 
       <RestaurantsMap restaurants={restaurants} area={area} />
 

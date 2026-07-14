@@ -46,7 +46,9 @@ export function RestaurantCard({ restaurant }: { restaurant: RestaurantListItem 
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Star className="size-3.5" />
-            리뷰 {restaurant._count.reviews}
+            {restaurant.averageRating !== null
+              ? `${restaurant.averageRating.toFixed(1)} (${restaurant._count.reviews})`
+              : "리뷰 없음"}
           </span>
           <span className="flex items-center gap-1">
             <Heart className="size-3.5" />
