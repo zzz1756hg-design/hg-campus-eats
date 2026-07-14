@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { FavoriteButton } from "@/components/favorite-button";
+import { RestaurantMap } from "@/components/restaurant-map";
 import { ReviewForm } from "@/components/review-form";
 import { AREA_LABELS, CATEGORY_LABELS } from "@/lib/restaurant-labels";
 import { getRestaurantById, isFavoritedByUser } from "@/lib/restaurants";
@@ -68,6 +69,8 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
           )}
         </div>
       </div>
+
+      <RestaurantMap name={restaurant.name} latitude={restaurant.latitude} longitude={restaurant.longitude} />
 
       <Separator />
 
