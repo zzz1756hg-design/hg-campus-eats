@@ -76,7 +76,7 @@ export function RestaurantFilterBar({ area, category, q, sort = "name", partnere
 
       <div className="flex flex-wrap gap-1.5">
         <FilterLink href={filterHref(current, { area: undefined })} active={!area}>
-          전체 캠퍼스
+          전체 상권
         </FilterLink>
         {AREAS.map((value) => (
           <FilterLink

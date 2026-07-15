@@ -4,22 +4,12 @@ export type KakaoMarkerInstance = { setMap: (map: KakaoMapInstance | null) => vo
 export type KakaoInfoWindowInstance = {
   open: (map: KakaoMapInstance, marker: KakaoMarkerInstance) => void;
 };
-export type KakaoSize = object;
-export type KakaoPoint = object;
-export type KakaoMarkerImage = object;
 
 export type KakaoMapsSdk = {
   load: (callback: () => void) => void;
   LatLng: new (lat: number, lng: number) => KakaoLatLng;
   Map: new (container: HTMLElement, options: { center: KakaoLatLng; level: number }) => KakaoMapInstance;
-  Marker: new (options: { position: KakaoLatLng; image?: KakaoMarkerImage }) => KakaoMarkerInstance;
-  MarkerImage: new (
-    src: string,
-    size: KakaoSize,
-    options?: { offset?: KakaoPoint }
-  ) => KakaoMarkerImage;
-  Size: new (width: number, height: number) => KakaoSize;
-  Point: new (x: number, y: number) => KakaoPoint;
+  Marker: new (options: { position: KakaoLatLng }) => KakaoMarkerInstance;
   InfoWindow: new (options: { content: string }) => KakaoInfoWindowInstance;
   event: {
     addListener: (target: KakaoMarkerInstance, type: string, handler: () => void) => void;

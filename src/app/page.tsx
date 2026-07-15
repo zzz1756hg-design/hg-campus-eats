@@ -2,7 +2,6 @@ import { CommercialArea, FoodCategory } from "@/generated/prisma/enums";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { RestaurantFilterBar } from "@/components/restaurant-filter-bar";
 import { RestaurantsMap } from "@/components/restaurants-map";
-import { AREA_LABELS } from "@/lib/restaurant-labels";
 import { getRestaurants, type RestaurantSort } from "@/lib/restaurants";
 
 const SORT_VALUES: RestaurantSort[] = ["name", "rating", "distance"];
@@ -48,10 +47,6 @@ export default async function Home(props: PageProps<"/">) {
       <RestaurantFilterBar area={area} category={category} q={q} sort={sort} partnered={partnered} />
 
       <RestaurantsMap restaurants={restaurants} area={area} />
-
-      <p className="text-sm text-muted-foreground">
-        전남대 주변 맛집 검색 결과 ({restaurants.length}개) · {area ? AREA_LABELS[area] : "캠퍼스 전체"}
-      </p>
 
       {restaurants.length === 0 ? (
         <p className="py-12 text-center text-sm text-muted-foreground">
