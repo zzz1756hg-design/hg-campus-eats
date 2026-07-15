@@ -1,24 +1,35 @@
 "use client";
 
+import { CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useActionState } from "react";
 
 import { submitRestaurantRequest } from "@/lib/actions/restaurant-requests";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
 export function RestaurantRequestForm() {
   const [state, action, pending] = useActionState(submitRestaurantRequest, undefined);
 
   if (state?.success) {
     return (
-      <div className="flex flex-col gap-3 text-sm">
-        <p>제보가 접수되었어요. 검토 후 목록에 반영될 예정이에요.</p>
-        <Link href="/requests" className="font-medium underline underline-offset-4">
-          내 제보 목록 보기
-        </Link>
+      <div className="flex flex-col items-center gap-3 rounded-xl border p-8 text-center text-sm">
+        <CheckCircle2 className="size-10 text-point" />
+        <p className="text-base font-semibold">제보가 완료되었습니다!</p>
+        <p className="text-muted-foreground">
+          학우님의 소중한 맛집 정보가 정상적으로 제보되었어요. 검토 후 목록에 반영될 예정이에요.
+        </p>
+        <div className="flex items-center gap-2 pt-2">
+          <a href="/requests/new" className={cn(buttonVariants({ size: "sm" }))}>
+            추가 제보하기
+          </a>
+          <Link href="/requests" className={cn(buttonVariants({ variant: "outline", size: "sm" }))}>
+            내 제보 목록 보기
+          </Link>
+        </div>
       </div>
     );
   }
