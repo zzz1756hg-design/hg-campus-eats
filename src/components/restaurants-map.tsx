@@ -59,14 +59,18 @@ export function RestaurantsMap({
         const ratingText =
           restaurant.averageRating !== null ? `★ ${restaurant.averageRating.toFixed(1)}` : "리뷰 없음";
         const topMenu = restaurant.menus[0]?.name;
+        const routeUrl = `https://map.kakao.com/link/to/${encodeURIComponent(restaurant.name)},${restaurant.latitude},${restaurant.longitude}`;
 
         const infoWindow = new kakao.maps.InfoWindow({
           content: `
-            <a href="/restaurants/${restaurant.id}" style="display:block;min-width:160px;padding:8px 10px;font-size:13px;line-height:1.4;color:inherit;">
-              <div style="font-weight:600;">${restaurant.name}</div>
-              <div style="color:#71717a;font-size:12px;">${CATEGORY_LABELS[restaurant.category]} · ${AREA_LABELS[restaurant.area]} · ${ratingText}</div>
-              ${topMenu ? `<div style="color:#71717a;font-size:12px;">${topMenu}</div>` : ""}
-            </a>
+            <div style="min-width:160px;padding:8px 10px;font-size:13px;line-height:1.4;">
+              <a href="/restaurants/${restaurant.id}" style="display:block;color:inherit;">
+                <div style="font-weight:600;">${restaurant.name}</div>
+                <div style="color:#71717a;font-size:12px;">${CATEGORY_LABELS[restaurant.category]} · ${AREA_LABELS[restaurant.area]} · ${ratingText}</div>
+                ${topMenu ? `<div style="color:#71717a;font-size:12px;">${topMenu}</div>` : ""}
+              </a>
+              <a href="${routeUrl}" target="_blank" rel="noreferrer" style="display:inline-block;margin-top:6px;color:oklch(0.24 0.05 260);font-size:12px;font-weight:600;">길찾기 →</a>
+            </div>
           `,
         });
 

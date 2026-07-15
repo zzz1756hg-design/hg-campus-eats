@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { label: "홈 / 지도", href: "/", match: (path: string) => path === "/" },
-  { label: "검색 필터", href: "/", match: () => false },
+  { label: "검색 필터", href: "/search", match: (path: string) => path.startsWith("/search") },
   { label: "식당 제보", href: "/requests/new", match: (path: string) => path.startsWith("/requests") },
   { label: "마이페이지", href: "/mypage", match: (path: string) => path.startsWith("/mypage") },
 ];

@@ -6,12 +6,22 @@ import { AREA_CENTERS } from "@/lib/restaurant-labels";
 
 export type RestaurantSort = "name" | "rating" | "distance";
 
+export type PriceBracket = "under5000" | "under10000" | "under20000" | "over20000";
+
+export const PRICE_BRACKET_RANGES: Record<PriceBracket, { gte?: number; lte?: number }> = {
+  under5000: { lte: 5000 },
+  under10000: { lte: 10000 },
+  under20000: { lte: 20000 },
+  over20000: { gte: 20000 },
+};
+
 export type RestaurantListFilters = {
   area?: CommercialArea;
   category?: FoodCategory;
   q?: string;
   sort?: RestaurantSort;
   partnered?: boolean;
+  priceBracket?: PriceBracket;
 };
 
 export async function getRestaurants({
@@ -20,6 +30,7 @@ export async function getRestaurants({
   q,
   sort = "name",
   partnered,
+  priceBracket,
 }: RestaurantListFilters) {
   const restaurants = await prisma.restaurant.findMany({
     where: {
@@ -33,6 +44,9 @@ export async function getRestaurants({
               { menus: { some: { name: { contains: q, mode: "insensitive" } } } },
             ],
           }
+        : {}),
+      ...(priceBracket
+        ? { menus: { some: { price: PRICE_BRACKET_RANGES[priceBracket] } } }
         : {}),
     },
     include: {

@@ -1,30 +1,10 @@
-import { CommercialArea, FoodCategory } from "@/generated/prisma/enums";
+import { CollapsibleResults } from "@/components/collapsible-results";
 import { RestaurantCard } from "@/components/restaurant-card";
 import { RestaurantFilterBar } from "@/components/restaurant-filter-bar";
 import { RestaurantsMap } from "@/components/restaurants-map";
 import { AREA_LABELS } from "@/lib/restaurant-labels";
-import { getRestaurants, type RestaurantSort } from "@/lib/restaurants";
-
-const SORT_VALUES: RestaurantSort[] = ["name", "rating", "distance"];
-
-function firstValue(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-function parseArea(value: string | string[] | undefined): CommercialArea | undefined {
-  const raw = firstValue(value);
-  return raw && raw in CommercialArea ? (raw as CommercialArea) : undefined;
-}
-
-function parseCategory(value: string | string[] | undefined): FoodCategory | undefined {
-  const raw = firstValue(value);
-  return raw && raw in FoodCategory ? (raw as FoodCategory) : undefined;
-}
-
-function parseSort(value: string | string[] | undefined): RestaurantSort {
-  const raw = firstValue(value);
-  return (SORT_VALUES as string[]).includes(raw ?? "") ? (raw as RestaurantSort) : "name";
-}
+import { firstValue, parseArea, parseCategory, parseSort } from "@/lib/restaurant-search-params";
+import { getRestaurants } from "@/lib/restaurants";
 
 export default async function Home(props: PageProps<"/">) {
   const searchParams = await props.searchParams;
@@ -49,21 +29,21 @@ export default async function Home(props: PageProps<"/">) {
 
       <RestaurantsMap restaurants={restaurants} area={area} />
 
-      <p className="text-sm text-muted-foreground">
-        전남대 주변 맛집 검색 결과 ({restaurants.length}개) · {area ? AREA_LABELS[area] : "캠퍼스 전체"}
-      </p>
-
-      {restaurants.length === 0 ? (
-        <p className="py-12 text-center text-sm text-muted-foreground">
-          조건에 맞는 식당이 없어요.
-        </p>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {restaurants.map((restaurant) => (
-            <RestaurantCard key={restaurant.id} restaurant={restaurant} />
-          ))}
-        </div>
-      )}
+      <CollapsibleResults
+        label={`전남대 주변 맛집 검색 결과 (${restaurants.length}개) · ${area ? AREA_LABELS[area] : "캠퍼스 전체"}`}
+      >
+        {restaurants.length === 0 ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">
+            조건에 맞는 식당이 없어요.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {restaurants.map((restaurant) => (
+              <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+            ))}
+          </div>
+        )}
+      </CollapsibleResults>
     </main>
   );
 }
