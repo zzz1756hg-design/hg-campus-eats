@@ -6,13 +6,16 @@ import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AdminMenuManager } from "@/components/admin-menu-manager";
 import { AdminPartnershipToggle } from "@/components/admin-partnership-toggle";
 import { AdminRestaurantInfoForm } from "@/components/admin-restaurant-info-form";
 import { FavoriteButton } from "@/components/favorite-button";
 import { RestaurantEditRequestForm } from "@/components/restaurant-edit-request-form";
+import { RestaurantLocationActions } from "@/components/restaurant-location-actions";
 import { RestaurantMap } from "@/components/restaurant-map";
-import { ReviewForm } from "@/components/review-form";
+import { ReviewDialog } from "@/components/review-dialog";
+import { ReviewRatingBreakdown } from "@/components/review-rating-breakdown";
 import { AREA_LABELS, CATEGORY_LABELS } from "@/lib/restaurant-labels";
 import { getRestaurantById, isFavoritedByUser } from "@/lib/restaurants";
 import { buttonVariants } from "@/components/ui/button";
@@ -61,7 +64,7 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
         </div>
         <div className="flex items-center gap-4 pt-1 text-sm">
           <span className="flex items-center gap-1">
-            <Star className="size-4" />
+            <Star className="size-4 fill-point text-point" />
             {averageRating ? `${averageRating.toFixed(1)} (${reviewCount})` : "리뷰 없음"}
           </span>
           <span className="flex items-center gap-1 text-muted-foreground">
@@ -111,78 +114,92 @@ export default async function RestaurantDetailPage(props: PageProps<"/restaurant
         </Card>
       )}
 
-      <RestaurantMap name={restaurant.name} latitude={restaurant.latitude} longitude={restaurant.longitude} />
+      <Tabs defaultValue="menu">
+        <TabsList variant="line" className="w-full">
+          <TabsTrigger value="menu">메뉴</TabsTrigger>
+          <TabsTrigger value="review">리뷰 ({reviewCount})</TabsTrigger>
+          <TabsTrigger value="location">위치</TabsTrigger>
+        </TabsList>
 
-      <Separator />
+        <TabsContent value="menu" className="flex flex-col gap-3 pt-4">
+          {restaurant.menus.length === 0 ? (
+            <p className="text-sm text-muted-foreground">등록된 메뉴가 없어요.</p>
+          ) : (
+            <ul className="flex flex-col gap-1.5 text-sm">
+              {restaurant.menus.map((menu) => (
+                <li key={menu.id} className="flex items-center justify-between gap-2">
+                  <span>{menu.name}</span>
+                  <span className="text-muted-foreground">{menu.price.toLocaleString()}원</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {session?.user?.role === "ADMIN" && (
+            <AdminMenuManager restaurantId={restaurant.id} menus={restaurant.menus} />
+          )}
+        </TabsContent>
 
-      <div className="flex flex-col gap-2">
-        <h2 className="text-lg font-semibold tracking-tight">메뉴</h2>
-        {restaurant.menus.length === 0 ? (
-          <p className="text-sm text-muted-foreground">등록된 메뉴가 없어요.</p>
-        ) : (
-          <ul className="flex flex-col gap-1.5 text-sm">
-            {restaurant.menus.map((menu) => (
-              <li key={menu.id} className="flex items-center justify-between gap-2">
-                <span>{menu.name}</span>
-                <span className="text-muted-foreground">{menu.price.toLocaleString()}원</span>
-              </li>
-            ))}
-          </ul>
-        )}
-        {session?.user?.role === "ADMIN" && (
-          <AdminMenuManager restaurantId={restaurant.id} menus={restaurant.menus} />
-        )}
-      </div>
+        <TabsContent value="review" className="flex flex-col gap-4 pt-4">
+          {reviewCount > 0 && <ReviewRatingBreakdown reviews={restaurant.reviews} />}
 
-      <Separator />
+          {userId ? (
+            <ReviewDialog
+              restaurantId={restaurant.id}
+              existingReview={myReview ? { rating: myReview.rating, content: myReview.content } : undefined}
+            />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
+                로그인
+              </Link>
+              하고 리뷰를 남겨보세요.
+            </p>
+          )}
 
-      {userId ? (
-        <RestaurantEditRequestForm restaurantId={restaurant.id} menus={restaurant.menus} />
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
-            로그인
-          </Link>
-          하고 식당 정보 수정을 요청해보세요.
-        </p>
-      )}
+          {reviewCount > 0 && (
+            <ul className="flex flex-col gap-4">
+              {restaurant.reviews.map((review) => (
+                <li key={review.id} className="flex flex-col gap-1 rounded-lg border p-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">{review.user.name}</span>
+                    <span className="flex items-center gap-1 text-muted-foreground">
+                      <Star className="size-3.5 fill-point text-point" />
+                      {review.rating}
+                    </span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-muted-foreground">{review.content}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </TabsContent>
 
-      <Separator />
+        <TabsContent value="location" className="flex flex-col gap-4 pt-4">
+          <RestaurantMap name={restaurant.name} latitude={restaurant.latitude} longitude={restaurant.longitude} />
+          <div className="flex flex-col gap-2 text-sm">
+            <p className="text-muted-foreground">{restaurant.address}</p>
+            <RestaurantLocationActions
+              name={restaurant.name}
+              address={restaurant.address}
+              latitude={restaurant.latitude}
+              longitude={restaurant.longitude}
+            />
+          </div>
 
-      <div className="flex flex-col gap-4">
-        <h2 className="text-lg font-semibold tracking-tight">리뷰 {reviewCount}개</h2>
+          <Separator />
 
-        {userId ? (
-          <ReviewForm
-            restaurantId={restaurant.id}
-            existingReview={myReview ? { rating: myReview.rating, content: myReview.content } : undefined}
-          />
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
-              로그인
-            </Link>
-            하고 리뷰를 남겨보세요.
-          </p>
-        )}
-
-        {reviewCount > 0 && (
-          <ul className="flex flex-col gap-4">
-            {restaurant.reviews.map((review) => (
-              <li key={review.id} className="flex flex-col gap-1 rounded-lg border p-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{review.user.name}</span>
-                  <span className="flex items-center gap-1 text-muted-foreground">
-                    <Star className="size-3.5" />
-                    {review.rating}
-                  </span>
-                </div>
-                <p className="whitespace-pre-wrap text-muted-foreground">{review.content}</p>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+          {userId ? (
+            <RestaurantEditRequestForm restaurantId={restaurant.id} menus={restaurant.menus} />
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              <Link href="/login" className="font-medium text-foreground underline underline-offset-4">
+                로그인
+              </Link>
+              하고 식당 정보 수정을 요청해보세요.
+            </p>
+          )}
+        </TabsContent>
+      </Tabs>
     </main>
   );
 }
